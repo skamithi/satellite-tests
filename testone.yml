@@ -1,5 +1,5 @@
 ---
-- hosts: foreman_content_views_kvmhosts
+- hosts: foreman_content_view_kvmhosts
   gather_facts: no
   pre_tasks:
   tasks:
