@@ -1,8 +1,7 @@
 ---
 - hosts: all
   gather_facts: true
-  # if user is not root like cloud-user
-  # become: yes
+  become: yes
   roles:
     - shhirose.motd
   vars:
