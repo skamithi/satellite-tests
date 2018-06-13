@@ -1,5 +1,5 @@
 ---
-- hosts: foreman_environment_production
+- hosts: foreman_content_views_kvmhosts
   gather_facts: no
   pre_tasks:
   tasks:
