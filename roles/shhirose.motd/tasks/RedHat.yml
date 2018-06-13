@@ -1,0 +1,11 @@
+---
+- name: Check installed SELinux
+  yum:
+    list: selinux-policy
+  register: selinux_installed
+
+- name: Install libselinux-python
+  yum:
+    name: libselinux-python
+    state: present
+  when: selinux_installed.results | length > 0

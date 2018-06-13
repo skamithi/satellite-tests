@@ -1,0 +1,64 @@
+---
+language: python
+
+python:
+  - 2.7
+
+services:
+  - docker
+
+sudo: required
+
+env:
+  matrix:
+    - os=centos version=6 container_id=$(mktemp) ANSIBLE_VERSION=latest
+    - os=centos version=6 container_id=$(mktemp) ANSIBLE_VERSION=2.4.3
+    - os=centos version=6 container_id=$(mktemp) ANSIBLE_VERSION=2.3.3
+    - os=centos version=6 container_id=$(mktemp) ANSIBLE_VERSION=2.2.3
+    - os=centos version=7 container_id=$(mktemp) ANSIBLE_VERSION=latest
+    - os=centos version=7 container_id=$(mktemp) ANSIBLE_VERSION=2.4.3
+    - os=centos version=7 container_id=$(mktemp) ANSIBLE_VERSION=2.3.3
+    - os=centos version=7 container_id=$(mktemp) ANSIBLE_VERSION=2.2.3
+    - os=debian version=jessie container_id=$(mktemp) ANSIBLE_VERSION=latest
+    - os=debian version=jessie container_id=$(mktemp) ANSIBLE_VERSION=2.4.3
+    - os=debian version=jessie container_id=$(mktemp) ANSIBLE_VERSION=2.3.3
+    - os=debian version=jessie container_id=$(mktemp) ANSIBLE_VERSION=2.2.3
+    - os=debian version=stretch container_id=$(mktemp) ANSIBLE_VERSION=latest
+    - os=debian version=stretch container_id=$(mktemp) ANSIBLE_VERSION=2.4.3
+    - os=debian version=stretch container_id=$(mktemp) ANSIBLE_VERSION=2.3.3
+    - os=debian version=stretch container_id=$(mktemp) ANSIBLE_VERSION=2.2.3
+    - os=ubuntu version=trusty container_id=$(mktemp) ANSIBLE_VERSION=latest
+    - os=ubuntu version=trusty container_id=$(mktemp) ANSIBLE_VERSION=2.4.3
+    - os=ubuntu version=trusty container_id=$(mktemp) ANSIBLE_VERSION=2.3.3
+    - os=ubuntu version=trusty container_id=$(mktemp) ANSIBLE_VERSION=2.2.3
+    - os=ubuntu version=xenial container_id=$(mktemp) ANSIBLE_VERSION=latest
+    - os=ubuntu version=xenial container_id=$(mktemp) ANSIBLE_VERSION=2.4.3
+    - os=ubuntu version=xenial container_id=$(mktemp) ANSIBLE_VERSION=2.3.3
+    - os=ubuntu version=xenial container_id=$(mktemp) ANSIBLE_VERSION=2.2.3
+
+install:
+  - sudo docker pull ${os}:${version}
+  - sudo docker build --file tests/travis/Dockerfile.${os}_${version} --tag=${os}_${version}:ansible tests/travis --build-arg ANSIBLE_VERSION=${ANSIBLE_VERSION}
+
+script:
+  - sudo docker run -dt --privileged --volume="${PWD}":/tmp/ansible-motd ${os}_${version}:ansible /bin/sh; fi > "${container_id}"
+
+  - sudo docker exec -t "$(cat ${container_id})" ansible-playbook /tmp/ansible-motd/tests/test.yml -i /tmp/ansible-motd/tests/inventory --syntax-check
+  - sudo docker exec -t "$(cat ${container_id})" ansible-playbook /tmp/ansible-motd/tests/test.yml -i /tmp/ansible-motd/tests/inventory -c local
+  - sudo docker exec -t "$(cat ${container_id})" ansible-playbook /tmp/ansible-motd/tests/test.yml -i /tmp/ansible-motd/tests/inventory -c local | grep -q 'changed=0.*failed=0' && (echo ""; exit 0) || (echo 'Changed or failed after retry'; exit 1)
+
+  - 'sudo docker exec -t "$(cat ${container_id})" cat /etc/motd | grep "xx      xx  xxxxxx  xxxxxx  xxxx"; if [ $? -ne 0 ]; then exit 1; fi'
+  - 'sudo docker exec -t "$(cat ${container_id})" cat /etc/motd | grep "xxxx  xxxx  xx  xx    xx    xx  xx"; if [ $? -ne 0 ]; then exit 1; fi'
+  - 'sudo docker exec -t "$(cat ${container_id})" cat /etc/motd | grep "xx xxxx xx  xx  xx    xx    xx  xx"; if [ $? -ne 0 ]; then exit 1; fi'
+  - 'sudo docker exec -t "$(cat ${container_id})" cat /etc/motd | grep "xx  xx  xx  xxxxxx    xx    xxxx"; if [ $? -ne 0 ]; then exit 1; fi'
+  - 'sudo docker exec -t "$(cat ${container_id})" cat /etc/motd | grep "author: shhirose"; if [ $? -ne 0 ]; then exit 1; fi'
+  - 'sudo docker exec -t "$(cat ${container_id})" cat /etc/motd | grep "git: https://github.com/shhirose/ansible-motd"; if [ $? -ne 0 ]; then exit 1; fi'
+  - 'sudo docker exec -t "$(cat ${container_id})" cat /etc/motd | grep "ansible-galaxy: https://galaxy.ansible.com/shhirose/motd/"; if [ $? -ne 0 ]; then exit 1; fi'
+
+after_script:
+  - sudo docker stop "$(cat ${container_id})"
+
+  - sudo docker rm "$(cat ${container_id})"
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/

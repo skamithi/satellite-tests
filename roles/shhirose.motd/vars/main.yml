@@ -1,0 +1,4 @@
+---
+shhirose_motd_templates:
+  - src: motd.j2
+    dest: /etc/motd

@@ -1,0 +1,12 @@
+{% if shhirose_motd_content %}
+{{ shhirose_motd_content }}
+
+{% endif %}
+{% if shhirose_motd_shell_results | length > 0 %}
+{% for item in geting_shell_results.results %}
+{{ item.stdout }}
+{% endfor %}
+{% endif %}
+{% if shhirose_motd_shell_after %}
+{{ shhirose_motd_shell_after }}
+{% endif %}

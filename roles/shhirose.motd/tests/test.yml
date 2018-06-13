@@ -1,19 +1,16 @@
 ---
-- hosts: all
-  gather_facts: no
-
+- hosts: localhost
   become: yes
   roles:
-    - shhirose.motd
+    - ../../../ansible-motd
   vars:
     shhirose_motd_content: |-
       xx      xx  xxxxxx  xxxxxx  xxxx
       xxxx  xxxx  xx  xx    xx    xx  xx
       xx xxxx xx  xx  xx    xx    xx  xx
       xx  xx  xx  xxxxxx    xx    xxxx
-
-      This MOTD was configured using Ansible Callback Script
-      included in Satellite 6.3
     shhirose_motd_shell_results:
-      - 'echo -n "kernel: "; uname -r'
-    shhirose_motd_shell_after: 'author: Red Hat Consulting'
+      - 'echo author: shhirose'
+    shhirose_motd_shell_after: |-
+      git: https://github.com/shhirose/ansible-motd
+      ansible-galaxy: https://galaxy.ansible.com/shhirose/motd/

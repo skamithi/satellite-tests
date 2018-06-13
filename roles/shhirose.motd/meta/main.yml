@@ -1,0 +1,26 @@
+galaxy_info:
+  author: shhirose
+  description: This is Ansible role for motd setting for RedHat Enterprise Linux, Debian, and Ubuntu.
+  license: MIT
+  min_ansible_version: 2.2
+  platforms:
+    - name: EL
+      versions:
+        - 6
+        - 7
+    - name: Debian
+      versions:
+        - jessie
+        - stretch
+    - name: Ubuntu
+      versions:
+        - trusty
+        - xenial
+    - name: Amazon
+      versions:
+        - all
+  galaxy_tags:
+    - system
+    - motd
+
+dependencies: []
